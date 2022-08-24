@@ -5,6 +5,7 @@ import cn.lut.curiezhang.es.model.mysql.MysqlBlog;
 import cn.lut.curiezhang.es.repository.es.EsBlogRepository;
 import cn.lut.curiezhang.es.repository.mysql.MysqlBlogRepository;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.ConstantScoreQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -29,7 +31,12 @@ import java.util.Optional;
  * version: 1.0<br>
  */
 @RestController
+@Slf4j
 public class DataController {
+
+    private static final String MYSQL = "mysql";
+    private static final String ES = "es";
+
     @Autowired
     MysqlBlogRepository mysqlBlogRepository;
 
@@ -37,59 +44,39 @@ public class DataController {
     EsBlogRepository esBlogRepository;
 
     @GetMapping("/blogs")
-    public Object blog() {
+    public Object blogList() {
         List<MysqlBlog> mysqlBlogs = mysqlBlogRepository.queryAll();
         return mysqlBlogs;
     }
 
     @PostMapping("/search")
     public Object search(@RequestBody Param param) {
-        HashMap<String, Object> map = new HashMap<>();
+        Map<String, Object> map = new HashMap<>();
+        // 统计耗时
         StopWatch watch = new StopWatch();
         watch.start();
         String type = param.getType();
-        if (type.equalsIgnoreCase("mysql")) {
-            List<MysqlBlog> mysqlBlogs = mysqlBlogRepository.queryBlogs(param.getKeyword());
+        // mysql 的搜索
+        if (MYSQL.equals(type)) {
+            List<MysqlBlog> mysqlBlogs = mysqlBlogRepository.queryBlog(param.getKeyword());
             map.put("list", mysqlBlogs);
-        } else if (type.equalsIgnoreCase("es")) {
-//            POST /blog/_search
-//            {
-//                "query": {
-//                "bool": {
-//                    "should": [
-//                    {
-//                        "match_phrase": {
-//                        "title": "springboot"
-//                    }
-//                    },
-//                    {
-//                        "match_phrase": {
-//                        "content": "springboot"
-//                    }
-//                    }
-//      ]
-//                }
-//            }
-//            }
-//            SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-//            MatchQueryBuilder matchQueryBuilder= QueryBuilders.matchQuery("content", param.getKeyword());
-//            ConstantScoreQueryBuilder constantScoreQueryBuilder=QueryBuilders.constantScoreQuery(matchQueryBuilder);
-//            searchSourceBuilder.query(constantScoreQueryBuilder);
-
+            // es 的搜索
+        } else if (ES.equals(type)) {
             BoolQueryBuilder builder = QueryBuilders.boolQuery();
             builder.should(QueryBuilders.matchPhraseQuery("title", param.getKeyword()));
             builder.should(QueryBuilders.matchPhraseQuery("content", param.getKeyword()));
             String s = builder.toString();
-            System.out.println(s);
+            log.info("s={}", s);
             Page<EsBlog> search = (Page<EsBlog>) esBlogRepository.search(builder);
             List<EsBlog> content = search.getContent();
             map.put("list", content);
-        }else {
-            return "i don't understand";
+        } else {
+            return "你要啥呢小老弟";
         }
         watch.stop();
-        long totalTimeMills = watch.getTotalTimeMillis();
-        map.put("duration", totalTimeMills);
+        // 计算耗时
+        long millis = watch.getTotalTimeMillis();
+        map.put("duration", millis);
         return map;
     }
 
@@ -100,9 +87,9 @@ public class DataController {
     }
 
     @Data
-    public static class Param {
-        // mysql , es
+    private static class Param {
         private String type;
         private String keyword;
     }
+
 }

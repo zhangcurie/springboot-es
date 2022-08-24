@@ -19,7 +19,7 @@ import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.GetIndexRequest;
-import org.elasticsearch.core.TimeValue;
+//import org.elasticsearch.core.TimeValue;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.SearchHit;
@@ -52,7 +52,7 @@ class EsApplicationTests {
     }
 
     @Autowired
-    @Qualifier("restHighLevelClient")
+//    @Qualifier("restHighLevelClient")
     private RestHighLevelClient client;
     @Test //创建索引
     void createIndex() throws IOException {
@@ -82,7 +82,7 @@ class EsApplicationTests {
     @Test //获取文档
     void getDoc() throws IOException {
 
-        GetRequest request = new GetRequest("kuang_index","1");
+//        GetRequest request = new GetRequest("kuang_index","1");
         //不会取返回的_source的上下文
         /* 判断文档是否存在
         request.fetchSourceContext(new FetchSourceContext(false));
@@ -90,16 +90,16 @@ class EsApplicationTests {
         boolean exists = client.exists(request, RequestOptions.DEFAULT);
         System.out.println(exists);
         */
-        GetResponse response = client.get(request, RequestOptions.DEFAULT);
-        System.out.println(response.getSourceAsString()); //打印文档的内容
-        System.out.println(response);//返回的内容和命令行是一样的
+//        GetResponse response = client.get(request, RequestOptions.DEFAULT);
+//        System.out.println(response.getSourceAsString()); //打印文档的内容
+//        System.out.println(response);//返回的内容和命令行是一样的
     }
-    @Test //删除文档
-    void delDoc() throws IOException {
-        DeleteRequest request = new DeleteRequest("kuang_index","1");
-        DeleteResponse response = client.delete(request, RequestOptions.DEFAULT);
-        System.out.println(response.status());
-    }
+//    @Test //删除文档
+//    void delDoc() throws IOException {
+//        DeleteRequest request = new DeleteRequest("kuang_index","1");
+//        DeleteResponse response = client.delete(request, RequestOptions.DEFAULT);
+//        System.out.println(response.status());
+//    }
     //查询
     //SearchRequest搜索请求
     //SearchSourceBuilder搜索请求构造
@@ -114,7 +114,7 @@ class EsApplicationTests {
         TermQueryBuilder termQueryBuilder = QueryBuilders.termQuery("name", "moxuan1");
         //MatchAllQueryBuilder matchAllQueryBuilder = QueryBuilders.matchAllQuery();
         searchBuilder.query(termQueryBuilder);
-        searchBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
+//        searchBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
 
         searchRequest.source(searchBuilder);
 

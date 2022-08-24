@@ -22,5 +22,5 @@ public interface MysqlBlogRepository extends JpaRepository<MysqlBlog, Integer> {
 
     @Query("select e from MysqlBlog e where e.title like concat('%', :keyword,'%') or e.content " +
             "like concat('%', :keyword,'%') ")
-    List<MysqlBlog> queryBlogs(@Param("keyword") String keyword);
+    List<MysqlBlog> queryBlog(@Param("keyword") String keyword);
 }
