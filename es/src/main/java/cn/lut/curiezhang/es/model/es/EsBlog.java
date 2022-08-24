@@ -19,20 +19,20 @@ import java.util.Date;
  * version: 1.0<br>
  */
 @Data
-@Document(indexName = "blog", type = "", useServerConfiguration = true, createIndex = false)
+@Document(indexName = "blog",  shards = 1, replicas = 0, refreshInterval = "-1")
 public class EsBlog {
     @Id
     private Integer id;
-    @Field(type = FieldType.Text, analyzer = "standard")
+//    @Field(type = FieldType.Text)
     private String title;
-    @Field(type = FieldType.Text, analyzer = "standard")
+//    @Field(type = FieldType.Text)
     private String author;
-    @Field(type = FieldType.Text, analyzer = "standard")
+//    @Field(type = FieldType.Text)
     private String content;
-    @Field(type = FieldType.Date, format = DateFormat.custom, pattern = "yyyy-MM-dd " +
-            "HH:mm:ss||yyyy-MM-dd||epoch-millis")
+//    @Field(type = FieldType.Date, format = DateFormat.custom, pattern = "yyyy-MM-dd " +
+//            "HH:mm:ss||yyyy-MM-dd||epoch-millis")
     private Date createTime;
-    @Field(type = FieldType.Date, format = DateFormat.custom, pattern = "yyyy-MM-dd " +
-            "HH:mm:ss||yyyy-MM-dd||epoch-millis")
+//    @Field(type = FieldType.Date, format = DateFormat.custom, pattern = "yyyy-MM-dd " +
+//            "HH:mm:ss||yyyy-MM-dd||epoch-millis")
     private Date updateTime;
 }

@@ -13,13 +13,15 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.springframework.data.elasticsearch.core.SearchHit;
+import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.util.StopWatch;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * <p>Package: cn.lut.curiezhang.es.controller</p>
@@ -43,6 +45,9 @@ public class DataController {
     @Autowired
     EsBlogRepository esBlogRepository;
 
+    @Autowired
+    ElasticsearchRestTemplate elasticsearchRestTemplate;
+
     @GetMapping("/blogs")
     public Object blogList() {
         List<MysqlBlog> mysqlBlogs = mysqlBlogRepository.queryAll();
@@ -65,10 +70,23 @@ public class DataController {
             BoolQueryBuilder builder = QueryBuilders.boolQuery();
             builder.should(QueryBuilders.matchPhraseQuery("title", param.getKeyword()));
             builder.should(QueryBuilders.matchPhraseQuery("content", param.getKeyword()));
+            NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder();
+            nativeSearchQueryBuilder.withQuery(builder);
+
+            NativeSearchQuery nativeSearchQuery = nativeSearchQueryBuilder.build();
             String s = builder.toString();
             log.info("s={}", s);
-            Page<EsBlog> search = (Page<EsBlog>) esBlogRepository.search(builder);
-            List<EsBlog> content = search.getContent();
+            SearchHits<EsBlog> search =
+                    elasticsearchRestTemplate.search(nativeSearchQuery, EsBlog.class);
+            List<EsBlog> content = new ArrayList<>();
+            List<SearchHit<EsBlog>> searchHits = search.getSearchHits();
+            for (SearchHit<EsBlog> searchHit : searchHits) {
+                Map<String, List<String>> highlightFields = searchHit.getHighlightFields();
+                //将高亮的内容填充到content中
+//                searchHit.getContent().setIssuer(highlightFields.get("text")==null ? searchHit.getContent().getIssuer():highlightFields.get("text").get(0));
+                content.add(searchHit.getContent());
+            }
+
             map.put("list", content);
         } else {
             return "你要啥呢小老弟";
