@@ -23,8 +23,8 @@ spring:
   # es 配置
   data:
     elasticsearch:
-      cluster-nodes: localhost:9200
-      cluster-name:     elasticsearch  # es 集群的名称
+#      cluster-nodes: localhost:9200
+#      cluster-name:     elasticsearch  # es 集群的名称
 #      repositories:
 #        enabled: true
   #      client:
