@@ -37,3 +37,7 @@ spring:
   # 日期格式化
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
+
+elasticsearch:
+  url: 127.0.0.1
+  port: 9300
